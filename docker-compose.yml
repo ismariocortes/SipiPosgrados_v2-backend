@@ -1,0 +1,63 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: sipi_app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - sipi
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sipi_nginx
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - sipi
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: sipi_postgres
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-sipi}
+      POSTGRES_USER: ${DB_USERNAME:-sipi}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "${DB_PORT_EXTERNAL:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - sipi
+
+  redis:
+    image: redis:7-alpine
+    container_name: sipi_redis
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - sipi
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  sipi:
+    driver: bridge
