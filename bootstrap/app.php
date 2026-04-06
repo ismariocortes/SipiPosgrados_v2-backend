@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use App\Http\Middleware\CheckPermission;
 
 return Application::configure(basePath: dirname(__DIR__))
 
@@ -20,9 +21,15 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // 🔐 Evitar redirect a login (API pura)
         $middleware->redirectGuestsTo(function () {
             return null;
         });
+
+        // 🔥 Registrar tu middleware personalizado
+        $middleware->alias([
+            'permission' => CheckPermission::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         /*

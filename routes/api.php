@@ -9,10 +9,20 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
+
         Route::get('/me', function (Request $request) {
             return $request->user();
         });
+
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
+
+        // 🔥 NUEVO: endpoint protegido por permiso
+        Route::post('/test/approve', function () {
+            return response()->json([
+                'message' => 'Acceso permitido'
+            ]);
+        })->middleware('permission:approve_application');
+
     });
 });

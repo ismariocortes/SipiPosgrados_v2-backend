@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Role;
 
 /**
  * Modelo de usuario base para guards `web` y tokens API vía Sanctum.
@@ -52,5 +53,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->role
+            && $this->role->permissions->contains('name', $permission);
     }
 }
