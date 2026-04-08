@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Role;
 
 /**
  * Modelo de usuario base para guards `web` y tokens API vía Sanctum.
@@ -14,7 +14,7 @@ use App\Models\Role;
  */
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -28,7 +28,8 @@ class User extends Authenticatable
         'identity_value',
         'phone',
         'role_id',
-        'folio_type'
+        'folio_type',
+        'user_status_id',
     ];
 
     /**
@@ -53,6 +54,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function userStatus()
+    {
+        return $this->belongsTo(UserStatus::class);
     }
 
     public function hasPermission(string $permission): bool
